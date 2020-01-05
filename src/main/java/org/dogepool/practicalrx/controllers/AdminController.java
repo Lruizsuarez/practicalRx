@@ -1,14 +1,7 @@
 package org.dogepool.practicalrx.controllers;
 
-import java.math.BigInteger;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.dogepool.practicalrx.domain.User;
-import org.dogepool.practicalrx.error.*;
+import org.dogepool.practicalrx.error.DogePoolException;
 import org.dogepool.practicalrx.error.Error;
 import org.dogepool.practicalrx.services.AdminService;
 import org.dogepool.practicalrx.services.PoolService;
@@ -21,6 +14,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/admin", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,8 +39,8 @@ public class AdminController {
     public ResponseEntity<Object> registerMiningUser(@PathVariable("id") long id) {
         User user = userService.getUser(id);
         if (user != null) {
-            boolean connected = poolService.connectUser(user);
-            List<User> miningUsers = poolService.miningUsers();
+            boolean connected = poolService.connectUser(user).toBlocking().single();
+            List<User> miningUsers = poolService.miningUsers().toList().toBlocking().single();
             return new ResponseEntity<>(miningUsers, HttpStatus.ACCEPTED);
         } else {
             throw new DogePoolException("User cannot mine, not authenticated", Error.BAD_USER, HttpStatus.NOT_FOUND);
@@ -51,8 +51,8 @@ public class AdminController {
     public ResponseEntity<Object> deregisterMiningUser(@PathVariable("id") long id) {
         User user = userService.getUser(id);
         if (user != null) {
-            boolean disconnected = poolService.disconnectUser(user);
-            List<User> miningUsers = poolService.miningUsers();
+            boolean disconnected = poolService.disconnectUser(user).toBlocking().single();
+            List<User> miningUsers = poolService.miningUsers().toList().toBlocking().single();
             return new ResponseEntity<>(miningUsers, HttpStatus.ACCEPTED);
         } else {
             throw new DogePoolException("User is not mining, not authenticated", Error.BAD_USER, HttpStatus.NOT_FOUND);
@@ -73,7 +73,7 @@ public class AdminController {
 
     @RequestMapping("/cost/{year}/{month}")
     protected Map<String, Object> cost(@PathVariable int year, @PathVariable Month month) {
-        BigInteger cost = adminService.costForMonth(year, month);
+        BigInteger cost = adminService.costForMonth(year, month).toBlocking().single();
 
         Map<String, Object> json = new HashMap<>();
         json.put("month", month + " " + year);

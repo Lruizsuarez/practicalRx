@@ -1,8 +1,8 @@
 package org.dogepool.practicalrx.services;
 
-import org.dogepool.practicalrx.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rx.Observable;
 
 /**
  * Service to retrieve the current global hashrate for the pool.
@@ -16,12 +16,9 @@ public class PoolRateService {
     @Autowired
     private HashrateService hashrateService;
 
-    public double poolGigaHashrate() {
-        double hashrate = 0d;
-        for (User u : poolService.miningUsers()) {
-            double userRate = hashrateService.hashrateFor(u);
-            hashrate += userRate;
-        }
-        return hashrate;
+    public Observable<Double> poolGigaHashrate() {
+        return poolService.miningUsers()
+                .flatMap(user -> hashrateService.hashrateFor(user))
+                .reduce(0d, Double::sum);
     }
 }

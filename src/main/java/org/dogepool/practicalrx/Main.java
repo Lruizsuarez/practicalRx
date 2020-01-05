@@ -65,14 +65,14 @@ public class Main {
         return args -> {
             User user = userService.getUser(0);
             //connect USER automatically
-            boolean connected = poolService.connectUser(user);
+            boolean connected = poolService.connectUser(user).toBlocking().single();
 
             //gather data
             List<UserStat> hashLadder = rankinService.getLadderByHashrate();
             List<UserStat> coinsLadder = rankinService.getLadderByCoins();
             String poolName = poolService.poolName();
-            int miningUserCount = poolService.miningUsers().size();
-            double poolRate = poolRateService.poolGigaHashrate();
+            int miningUserCount = poolService.miningUsers().toList().toBlocking().single().size();
+            double poolRate = poolRateService.poolGigaHashrate().toBlocking().single();
 
             //display welcome screen in console
             System.out.println("Welcome to " + poolName + " dogecoin mining pool!");
