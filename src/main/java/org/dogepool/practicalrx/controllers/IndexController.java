@@ -34,19 +34,19 @@ public class IndexController {
     public String index(Map<String, Object> model) {
         //prepare a model
         IndexModel idxModel = new IndexModel();
-        idxModel.setHashLadder(rankService.getLadderByHashrate());
-        idxModel.setCoinsLadder(rankService.getLadderByCoins());
+        idxModel.setHashLadder(rankService.getLadderByHashrate().toList().toBlocking().single());
+        idxModel.setCoinsLadder(rankService.getLadderByCoins().toList().toBlocking().single());
         idxModel.setPoolName(poolService.poolName());
         idxModel.setMiningUserCount(poolService.miningUsers().toList().toBlocking().single().size());
         idxModel.setGigaHashrate(poolRateService.poolGigaHashrate().toBlocking().single());
         try {
-            Double dogeToDollar = exchangeRateService.dogeToCurrencyExchangeRate("USD");
+            Double dogeToDollar = exchangeRateService.dogeToCurrencyExchangeRate("USD").toBlocking().single();
             idxModel.setDogeToUsdMessage("1 DOGE = " + dogeToDollar + "$");
         } catch (Exception e) {
             idxModel.setDogeToUsdMessage("1 DOGE = ??$, couldn't get the exchange rate - " + e.getMessage());
         }
         try {
-            Double dogeToEuro = exchangeRateService.dogeToCurrencyExchangeRate("EUR");
+            Double dogeToEuro = exchangeRateService.dogeToCurrencyExchangeRate("EUR").toBlocking().single();
             idxModel.setDogeToEurMessage("1 DOGE = " + dogeToEuro + "€");
         } catch (Exception e) {
             idxModel.setDogeToEurMessage("1 DOGE = ??€, couldn't get the exchange rate - " + e.getMessage());

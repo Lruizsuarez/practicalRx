@@ -24,22 +24,22 @@ public class PoolService {
     }
 
     public Observable<Boolean> connectUser(User user) {
-        return Observable.create(subscriber -> {
+        //for use onNext with same Obs have to add <T> reference
+        return Observable.<Boolean>create(subscriber -> {
             connectedUsers.add(user);
-            System.out.println(user.nickname + " connected");
-
             subscriber.onNext(Boolean.TRUE);
             subscriber.onCompleted();
-        });
+        }).doOnNext(value -> System.out.println(user.nickname + "connected : " + value));
     }
 
     public Observable<Boolean> disconnectUser(User user) {
-        return Observable.create(subscriber -> {
+        //for use onNext with same Obs have to add <T> reference
+        return Observable.<Boolean>create(subscriber -> {
             connectedUsers.remove(user);
             System.out.println(user.nickname + " disconnected");
 
             subscriber.onNext(Boolean.TRUE);
             subscriber.onCompleted();
-        });
+        }).doOnNext(value -> System.out.println(user.nickname + "disconnected : " + value));
     }
 }

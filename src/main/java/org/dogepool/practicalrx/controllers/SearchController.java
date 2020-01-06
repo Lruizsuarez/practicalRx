@@ -1,7 +1,5 @@
 package org.dogepool.practicalrx.controllers;
 
-import java.util.List;
-
 import org.dogepool.practicalrx.domain.User;
 import org.dogepool.practicalrx.domain.UserStat;
 import org.dogepool.practicalrx.services.SearchService;
@@ -10,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -20,7 +20,7 @@ public class SearchController {
 
     @RequestMapping("user/{pattern}")
     public List<User> searchByName(@PathVariable String pattern) {
-        return service.findByName(pattern);
+        return service.findByName(pattern).toList().toBlocking().single();
     }
 
     @RequestMapping("user/coins/{minCoins}")
@@ -30,6 +30,6 @@ public class SearchController {
 
     @RequestMapping("user/coins/{minCoins}/{maxCoins}")
     private List<UserStat> searchByCoins(@PathVariable long minCoins, @PathVariable long maxCoins) {
-        return service.findByCoins(minCoins, maxCoins);
+        return service.findByCoins(minCoins, maxCoins).toList().toBlocking().single();
     }
 }

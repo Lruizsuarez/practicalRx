@@ -1,26 +1,20 @@
 package org.dogepool.practicalrx;
 
-import java.io.File;
-import java.util.List;
-
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.document.JsonDocument;
 import org.dogepool.practicalrx.domain.User;
 import org.dogepool.practicalrx.domain.UserStat;
-import org.dogepool.practicalrx.services.ExchangeRateService;
-import org.dogepool.practicalrx.services.PoolRateService;
-import org.dogepool.practicalrx.services.PoolService;
-import org.dogepool.practicalrx.services.RankingService;
-import org.dogepool.practicalrx.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.dogepool.practicalrx.services.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
+
+import java.io.File;
+import java.util.List;
 
 @SpringBootApplication
 public class Main {
@@ -61,15 +55,15 @@ public class Main {
     @Bean
     @Order(value = 2)
     CommandLineRunner commandLineRunner(UserService userService, RankingService rankinService,
-            PoolService poolService, PoolRateService poolRateService, ExchangeRateService exchangeRateService) {
+                                        PoolService poolService, PoolRateService poolRateService, ExchangeRateService exchangeRateService) {
         return args -> {
-            User user = userService.getUser(0);
+            User user = userService.getUser(0).toBlocking().single();
             //connect USER automatically
             boolean connected = poolService.connectUser(user).toBlocking().single();
 
             //gather data
-            List<UserStat> hashLadder = rankinService.getLadderByHashrate();
-            List<UserStat> coinsLadder = rankinService.getLadderByCoins();
+            List<UserStat> hashLadder = rankinService.getLadderByHashrate().toList().toBlocking().single();
+            List<UserStat> coinsLadder = rankinService.getLadderByCoins().toList().toBlocking().single();
             String poolName = poolService.poolName();
             int miningUserCount = poolService.miningUsers().toList().toBlocking().single().size();
             double poolRate = poolRateService.poolGigaHashrate().toBlocking().single();
@@ -80,13 +74,13 @@ public class Main {
                     + poolRate + " GHash/s");
 
             try {
-                Double dogeToDollar = exchangeRateService.dogeToCurrencyExchangeRate("USD");
+                Double dogeToDollar = exchangeRateService.dogeToCurrencyExchangeRate("USD").toBlocking().single();
                 System.out.println("1 DOGE = " + dogeToDollar + "$");
             } catch (Exception e) {
                 System.out.println("1 DOGE = ??$, couldn't get the exchange rate - " + e);
             }
             try {
-                Double dogeToEuro =  exchangeRateService.dogeToCurrencyExchangeRate("EUR");
+                Double dogeToEuro = exchangeRateService.dogeToCurrencyExchangeRate("EUR").toBlocking().single();
                 System.out.println("1 DOGE = " + dogeToEuro + "€");
             } catch (Exception e) {
                 System.out.println("1 DOGE = ??€, couldn't get the exchange rate - " + e);

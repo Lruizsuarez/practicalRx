@@ -36,12 +36,12 @@ public class PoolController {
 
     @RequestMapping("/ladder/hashrate")
     public List<UserStat> ladderByHashrate() {
-        return rankingService.getLadderByHashrate();
+        return rankingService.getLadderByHashrate().toList().toBlocking().single();
     }
 
     @RequestMapping("/ladder/coins")
     public List<UserStat> ladderByCoins() {
-        return rankingService.getLadderByCoins();
+        return rankingService.getLadderByCoins().toList().toBlocking().single();
     }
 
     @RequestMapping("/hashrate")
@@ -60,7 +60,7 @@ public class PoolController {
 
     @RequestMapping("/miners")
     public Map<String, Object> miners() {
-        int allUsers = userService.findAll().size();
+        int allUsers = userService.findAll().toList().toBlocking().single().size();
         int miningUsers = poolService.miningUsers().toList().toBlocking().single().size();
         Map<String, Object> json = new HashMap<>(2);
         json.put("totalUsers", allUsers);
@@ -75,12 +75,12 @@ public class PoolController {
 
     @RequestMapping("/lastblock")
     public Map<String, Object> lastBlock() {
-        LocalDateTime found = statService.lastBlockFoundDate();
+        LocalDateTime found = statService.lastBlockFoundDate().toBlocking().single();
         Duration foundAgo = Duration.between(found, LocalDateTime.now());
 
         User foundBy;
         try {
-            foundBy = statService.lastBlockFoundBy();
+            foundBy = statService.lastBlockFoundBy().toBlocking().single();
         } catch (IndexOutOfBoundsException e) {
             System.err.println("WARNING: StatService failed to return the last user to find a coin");
             foundBy = new User(-1, "BAD USER", "Bad User from StatService, please ignore", "", null);
