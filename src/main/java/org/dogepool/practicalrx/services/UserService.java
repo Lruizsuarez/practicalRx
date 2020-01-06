@@ -56,8 +56,8 @@ public class UserService {
                 }
                 return Observable.from(users);
             } catch (Exception e) {
-                throw new DogePoolException("Error while getting list of users from database",
-                        Error.DATABASE, HttpStatus.INTERNAL_SERVER_ERROR, e);
+                return Observable.error(new DogePoolException("Error while getting list of users from database",
+                        Error.DATABASE, HttpStatus.INTERNAL_SERVER_ERROR, e));
             }
         } else {
             return Observable.just(User.USER, User.OTHERUSER);

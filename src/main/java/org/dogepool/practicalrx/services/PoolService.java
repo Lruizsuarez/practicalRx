@@ -1,11 +1,11 @@
 package org.dogepool.practicalrx.services;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.dogepool.practicalrx.domain.User;
 import org.springframework.stereotype.Service;
 import rx.Observable;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Service to retrieve information on the current status of the mining pool

@@ -10,7 +10,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import rx.Observable;
-import rx.exceptions.Exceptions;
 
 import java.util.Map;
 
@@ -35,8 +34,8 @@ public class ExchangeRateService {
     public Observable<Double> dogeToCurrencyExchangeRate(String targetCurrencyCode) {
         return dogeToDollar()
                 .flatMap(x -> dollarToCurrency(targetCurrencyCode)
-                        .onErrorResumeNext(t -> t instanceof DogePoolException?
-                                dollarToCurrencyNonFree(targetCurrencyCode):
+                        .onErrorResumeNext(t -> t instanceof DogePoolException ?
+                                dollarToCurrencyNonFree(targetCurrencyCode) :
                                 Observable.error(t))
                         .map(currency -> x * currency));
     }

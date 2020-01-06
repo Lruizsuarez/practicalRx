@@ -22,7 +22,7 @@ public class SearchService {
      * Find users whose display name contain the given namePattern.
      *
      * @param namePattern the string to find in a user's displayName for him to match (ignoring case).
-     * @return the list of matching users.
+     * @return the stream of matching users.
      */
     public Observable<User> findByName(String namePattern) {
         return userService.findAll()
@@ -34,7 +34,7 @@ public class SearchService {
      *
      * @param minCoins the minimum number of coins found by a user for it to match.
      * @param maxCoins the maximum number of coins above which a user won't be considered a match. -1 to ignore.
-     * @return the list of matching users.
+     * @return the stream of matching users.
      */
     public Observable<UserStat> findByCoins(long minCoins, long maxCoins) {
         return userService.findAll()
